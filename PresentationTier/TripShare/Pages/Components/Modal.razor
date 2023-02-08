@@ -1,0 +1,23 @@
+﻿
+
+@namespace TripShare.Pages.Components
+
+<!--todo popUp-->
+@if (ShowModal)
+{
+    <div class="modal-background" style="display: block; height: 100%">
+        <div class="modal-box">
+            @ChildContent
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = null!;
+    
+    [Parameter]
+    public bool ShowModal { get; set; }
+
+}

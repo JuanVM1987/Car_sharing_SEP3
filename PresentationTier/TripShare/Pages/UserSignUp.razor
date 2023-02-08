@@ -1,0 +1,189 @@
+@page "/UserSignUp"
+@using Domain.Model
+@using TripShare.Pages.Components
+@using Domain.DTOs
+@using HttpClient.ClientInterfaces
+@inject NavigationManager nvgM;
+
+@inject IUserClient UserClient;
+@inject ICarClient CarClient;
+
+  <div class="container py-5 h-150">
+    <div class="row justify-content-center align-items-center h-75">
+      <div class="col-12 col-lg-12 col-xl-7">
+        <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
+          <div class="card-body p-4 p-md-12">
+            <h3 class="mb-4 pb-2 pb-md-0 mb-md-5">Trip Share</h3>
+            <div class="row">
+                              <div class="col-md-6 mb-4">
+
+                                <div class="form-outline">
+                                    <label class="form-label" for="Example :emial@Domain.com">Email :</label>
+                                  <input type="email" @bind="Email" class="form-control form-control-lg"/>
+
+                                </div>
+                                </div>
+                 <div class="col-md-6 mb-4">
+
+                   <div class="form-outline">
+                     <label class="form-label" >Password :</label>
+                     <input type="password" @bind="Password" class="form-control form-control-lg"/>
+
+                   </div>
+
+                 </div>
+                 </div>
+              <div class="row">
+                <div class="col-md-6 mb-4">
+
+                  <div class="form-outline">
+                     <label class="form-label" for="firstName">First Name :</label>
+                    <input type="text" @bind="Firstname" class="form-control form-control-lg"/>
+
+                  </div>
+
+                </div>
+                <div class="col-md-6 mb-4">
+
+                  <div class="form-outline">
+                    <label class="form-label" for="lastName">Last Name :</label>
+                    <input type="text" @bind="Lastname" class="form-control form-control-lg"/>
+
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-4 d-flex align-items-center">
+
+                  <div class="form-outline datepicker w-100">
+                    <label for="City-street-Nu-floor" class="form-label">Adress :</label>
+                    <input type="text" @bind="Address" class="form-control form-control-lg"/>
+
+                  </div>
+
+                </div>
+                <div class="col-md-6 mb-4 pb-2">
+
+                  <div class="form-outline">
+                    <label class="form-label" for="phoneNumber">Phone Number :</label>
+                    
+                    <input type="number" @bind="PhoneNumber" id="phoneNumber" class="form-control form-control-lg"/>
+
+                  </div>
+                </div>
+              </div>
+              
+              
+              <div class="row">
+                <div class="col-12">
+                  <DriverBox 
+                             OnDriveLicenseChange="UpdateDriveLicense" OnColorChange="UpdateCarColor" OnModelChange="UpdateCarModel"
+                             OnSeatsChange="UpdateSeats" OnCarTypeChange="UpdateFuelType" OnPlateNumberChange="UpdatePlateNumber"></DriverBox>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-2">
+                <button class="btn btn-primary btn-lg" @onmouseover="(e) => { Console.WriteLine(DriveLicense + ' ' + plateNumber +' ' + Color + ' ' + Seats + ' ' + FuelType + ' ' +CarModel); }" @onclick="CreateAsync" type="button" >Submit</button>
+              </div>
+              @if (!string.IsNullOrEmpty(Msg))
+              {
+
+                <label style="color: @Color">@Msg</label>
+              }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+@code {
+    private string Email = "";
+    private string Password = "";
+    private string Firstname = "";
+    private string Lastname = "";
+    private string PhoneNumber = "";
+    private string Address = "";
+    private string? DriveLicense;
+    private string Color = "";
+    private string Msg = "";
+    private string SuccessMsg = "";
+  private string plateNumber = "";
+  private string CarColor = "";
+  private string CarModel = "";
+  private string FuelType = "";
+  private int Seats;
+
+
+
+    private async Task CreateAsync()
+    {
+        Msg = "";
+      try
+        {
+          if (!string.IsNullOrEmpty(plateNumber) && !string.IsNullOrEmpty(DriveLicense)
+          && !string.IsNullOrEmpty(CarColor) && !string.IsNullOrEmpty(FuelType) && Seats >0)
+          {
+            await UserClient.CreateAsync(new User(Email, Password, Firstname, Lastname, PhoneNumber, Address, DriveLicense));
+            await CarClient.CreateAsync(new BeADriverRequestDto(Email,DriveLicense, plateNumber, CarColor, CarModel, Seats, FuelType));
+          }
+          else
+          {
+            User u = new User();
+            u.Address = Address;
+            u.Password = Password;
+            u.Email = Email;
+            u.Phone = PhoneNumber;
+            u.FirstName = Firstname;
+            u.LastName = Lastname;
+            await UserClient.CreateAsync(u);
+          }
+          Color = "green";
+            Msg = "your Account has been add successfully";
+          nvgM.NavigateTo("/Login");
+        }
+        catch (Exception e)
+        {
+          Msg = e.Message;
+            Color = "red";
+        }
+    }
+
+  public void UpdateDriveLicense(string s)
+  {
+    DriveLicense = s;
+    Console.WriteLine(s);
+  }
+  public void UpdatePlateNumber(string s)
+  {
+    plateNumber = s;
+    Console.WriteLine(s);
+
+  }
+  public void UpdateCarColor(string s)
+  {
+    CarColor = s;
+    Console.WriteLine(s);
+
+  }
+  public void UpdateFuelType(string s)
+  {
+    FuelType = s;
+    Console.WriteLine(s);
+
+  }
+  public void UpdateCarModel(string s)
+  {
+    CarModel = s;
+    Console.WriteLine(s);
+
+  }
+  public void UpdateSeats(int i)
+  {
+    Seats = i;
+    Console.WriteLine(i);
+
+  }
+
+}
